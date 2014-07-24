@@ -96,6 +96,7 @@ QString MainWindow::getLangName(QString lang) {
     map["dzo"] = QObject::tr("Dzongkha");
     map["eng"] = QObject::tr("English");
     map["epo"] = QObject::tr("Esperanto");
+    map["equ"] = QObject::tr("Equation");
     map["est"] = QObject::tr("Estonian");
     map["ewe"] = QObject::tr("Ewe");
     map["fao"] = QObject::tr("Faroese");
@@ -107,6 +108,7 @@ QString MainWindow::getLangName(QString lang) {
     map["kat"] = QObject::tr("Georgian");
     map["deu"] = QObject::tr("German");
     map["ell"] = QObject::tr("Greek, Modern");
+    map["grc"] = QObject::tr("Greece, Modern");
     map["grn"] = QObject::tr("Guaraní");
     map["guj"] = QObject::tr("Gujarati");
     map["hat"] = QObject::tr("Haitian; Haitian Creole");
@@ -304,6 +306,33 @@ QList<QString> MainWindow::getLangugagelist() {
     lprocess->setProcessEnvironment(env);
     }
 
+  if (settings.value("OCR/version").toString() == "3.02")
+  {
+    QStringList arguments;
+    arguments << "--list-langs";
+    lprocess->start(ocrCmd, arguments);
+    lprocess->waitForFinished(-1);
+
+    QString s = QString::fromLocal8Bit(lprocess->
+                                     readAllStandardError().constData());
+
+    QStringList lines;
+    lines = s.split("\n");
+    qDebug() << s;
+    QList<QString> languages;
+
+    for (int i = 1; i < lines.size(); ++i) {
+      QString lang = lines[i].trimmed();
+      if (lines[i] == "") continue;
+      languages.append(lang);
+    }
+
+    qSort(languages);
+    return languages;
+  }
+  else
+  {
+
   QStringList arguments;
   arguments << "a" << "b" << "-l" << "_ICQ_";
   lprocess->start(ocrCmd, arguments);
@@ -362,6 +391,7 @@ QList<QString> MainWindow::getLangugagelist() {
   qSort(languages);
 
   return languages;
+  }
 }
 
 void MainWindow::on_buttonBox_accepted() {
@@ -384,8 +414,9 @@ void MainWindow::on_buttonBox_accepted() {
   out = out.replace(".txt", "").replace(".html", "");
   args << out;
 
-  QString lang = ui->comboBoxLang->itemData(
-                   ui->comboBoxLang->currentIndex()).toString();
+  QString lang = tr(ui->comboBoxLang->itemData(
+                   ui->comboBoxLang->currentIndex()).toString().toAscii().data());
+
   args << "-l" << lang;
 
   if (ui->comboBoxPSM->isEnabled()) {

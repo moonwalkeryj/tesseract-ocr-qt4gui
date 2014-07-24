@@ -95,7 +95,10 @@ void SettingsDialog::on_pb_check_clicked() {
   lines = s.split("\n");
   for (int i = 0; i < lines.size(); ++i) {
     line = lines.at(i);
-    if (line.contains("tesseract 3.01")) {
+    if (line.contains("tesseract 3.02")) {
+      lbl_VERSION->setText("3.02");
+      return;
+    } else if (line.contains("tesseract 3.01")) {
       lbl_VERSION->setText("3.01");
       return;
     } else if (line.contains("tesseract 3.00")) {
